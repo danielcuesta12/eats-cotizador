@@ -162,7 +162,7 @@ $eventTypes = array_filter(array_map('trim', explode(',', $rawTypes)));
 $pageTitle  = 'Nueva propuesta';
 $activePage = 'quote-new';
 
-$extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=4">';
+$extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=5">';
 include __DIR__ . '/../admin/layout-top.php';
 ?>
 

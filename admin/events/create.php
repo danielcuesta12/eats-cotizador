@@ -146,7 +146,7 @@ $defObs     = getSetting('default_observations', '');
 $pageTitle  = 'Nuevo servicio';
 $activePage = 'event-new';
 $extraHead  = '
-<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=4">
+<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=5">
 <style>
 .event-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(124,58,237,.1);color:#7c3aed;border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600;margin-bottom:16px}
 </style>';
