@@ -157,7 +157,7 @@ function formatDatetime(string|null $dt): string
 
 function generateQuoteNumber(): string
 {
-    $prefix = getSetting('quote_prefix', 'EG');
+    $prefix = getSetting('quote_prefix', 'EA');
     $year   = date('Y');
 
     // Buscar el último número del año

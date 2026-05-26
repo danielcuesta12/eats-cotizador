@@ -62,7 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $perPerson   = $numPeople > 0 ? $total / $numPeople : 0;
 
         // --- Generar número y token ---
-        $quoteNumber = generateQuoteNumber();
+        $year   = date('Y');
+        $last   = Database::fetch(
+            "SELECT quote_number FROM quotes WHERE quote_number LIKE ? ORDER BY id DESC LIMIT 1",
+            ['EA-' . $year . '-%']
+        );
+        $num         = $last ? ((int) end(explode('-', $last['quote_number'])) + 1) : 1;
+        $quoteNumber = sprintf('EA-%s-%04d', $year, $num);
         $token       = generateToken();
         $validDate   = $validUntil ?: date('Y-m-d', strtotime('+' . getSetting('quote_validity_days', 15) . ' days'));
 
