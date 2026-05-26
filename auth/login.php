@@ -204,9 +204,9 @@ input::placeholder { color: #333; }
 
 <div class="wrap">
   <div class="brand">
-    <div class="brand-icon">&#127828;</div>
-    <div class="brand-name">El Gringo Burger Joint</div>
-    <div class="brand-sub">Sistema de Cotizacion</div>
+    <img src="<?php echo APP_URL; ?>/assets/img/LOGO_ROJO.png"
+         alt="EATS"
+         style="width:180px;height:180px;object-fit:contain;border-radius:20px;display:block;margin:0 auto 24px">
   </div>
 
   <div class="card">

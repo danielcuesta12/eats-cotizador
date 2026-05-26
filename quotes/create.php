@@ -156,7 +156,7 @@ if (!empty($uncategorized)) {
 }
 $defaultTerms = getSetting('default_terms');
 // Tipos de evento configurables desde Configuracion → Datos del negocio
-$rawTypes   = getSetting('event_types', 'Corporativo,Boda,Cumpleaños,Social / Familiar,Feria gastronómica,Food truck,Otro');
+$rawTypes   = getSetting('event_types', 'Alimentación masiva,Catering,Refrigerio,Evento corporativo');
 $eventTypes = array_filter(array_map('trim', explode(',', $rawTypes)));
 
 $pageTitle  = 'Nueva propuesta';
@@ -211,10 +211,10 @@ include __DIR__ . '/../admin/layout-top.php';
           <div class="form-group">
             <label class="form-required">Tipo de servicio</label>
             <select name="event_type" id="eventType" required>
-              <option value="">Seleccionar…</option>
+              <option value="">Seleccionar...</option>
               <?php foreach ($eventTypes as $et): ?>
-              <option value="<?= $et ?>" <?= ($_POST['event_type']??'')===$et?'selected':'' ?>>
-                <?= $et ?>
+              <option value="<?= clean($et) ?>" <?= (isset($_POST['event_type']) && $_POST['event_type']===$et) ? 'selected' : '' ?>>
+                <?= clean($et) ?>
               </option>
               <?php endforeach; ?>
             </select>
