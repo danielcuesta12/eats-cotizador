@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?php echo isset($pageTitle) ? clean($pageTitle) . ' — ' : ''; ?>El Gringo Cotizador</title>
+<title><?php echo isset($pageTitle) ? clean($pageTitle) . ' — ' : ''; ?>EATS Cotizador</title>
 <link rel="stylesheet" href="<?php echo APP_URL; ?>/assets/css/style.css">
 <?php if (isset($extraHead)) echo $extraHead; ?>
 </head>
@@ -11,9 +11,9 @@
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <div class="sidebar-logo">&#127828;</div>
+    <div class="sidebar-logo">&#127860;</div>
     <div>
-      <div class="sidebar-brand-name">El Gringo</div>
+      <div class="sidebar-brand-name">EATS</div>
       <div class="sidebar-brand-sub">Cotizador</div>
     </div>
     <button class="sidebar-close" id="sidebarClose" aria-label="Cerrar menu">&#10005;</button>
@@ -30,18 +30,18 @@
 
     <a href="<?php echo APP_URL; ?>/quotes/create.php"
        class="nav-link nav-link-highlight <?php echo ($activePage??'')==='quote-new'?'active':''; ?>">
-      <span class="nav-icon">&#9998;</span> Nueva cotizacion
+      <span class="nav-icon">&#9998;</span> Nueva propuesta
     </a>
 
     <a href="<?php echo APP_URL; ?>/admin/events/create"
        class="nav-link <?php echo ($activePage??'')==='event-new'?'active':''; ?>"
        style="color:#7c3aed;border-left:3px solid #7c3aed;<?php echo ($activePage??'')==='event-new'?'background:rgba(124,58,237,.08)':''; ?>">
-      <span class="nav-icon">&#128197;</span> Nuevo evento
+      <span class="nav-icon">&#128197;</span> Nuevo servicio
     </a>
 
     <a href="<?php echo APP_URL; ?>/quotes/list.php"
        class="nav-link <?php echo ($activePage??'')==='quotes'?'active':''; ?>">
-      <span class="nav-icon">&#128203;</span> Cotizaciones
+      <span class="nav-icon">&#128203;</span> Propuestas
     </a>
 
     <a href="<?php echo APP_URL; ?>/admin/calendar"
@@ -74,7 +74,7 @@
 
     <a href="<?php echo APP_URL; ?>/admin/products/index.php"
        class="nav-link <?php echo ($activePage??'')==='products'?'active':''; ?>">
-      <span class="nav-icon">&#127828;</span> Productos
+      <span class="nav-icon">&#127860;</span> Productos
     </a>
 
     <a href="<?php echo APP_URL; ?>/admin/categories/index.php"
@@ -122,7 +122,7 @@
     <button class="topbar-menu" id="menuToggle" aria-label="Abrir menu">&#9776;</button>
     <div class="topbar-title"><?php echo isset($pageTitle) ? clean($pageTitle) : 'Panel'; ?></div>
     <div class="topbar-actions">
-      <a href="<?php echo APP_URL; ?>/quotes/create.php" class="btn-topbar-new">+ Cotizacion</a>
+      <a href="<?php echo APP_URL; ?>/quotes/create.php" class="btn-topbar-new">+ Propuesta</a>
     </div>
   </header>
 

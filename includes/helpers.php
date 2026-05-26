@@ -253,7 +253,7 @@ function quoteStatusLabel(string $status): string
     return match($status) {
         'borrador'  => 'Borrador',
         'enviada'   => 'Enviada',
-        'aceptada'  => 'Aceptada',
+        'aceptada'  => 'En servicio',
         'rechazada' => 'Rechazada',
         default     => ucfirst($status),
     };
