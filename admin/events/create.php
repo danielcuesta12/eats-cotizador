@@ -107,8 +107,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $rawTypes   = getSetting('event_types', 'Corporativo,Boda,Cumpleaños,Social / Familiar,Feria gastronómica,Food truck,Otro');
 $eventTypes = array_filter(array_map('trim', explode(',', $rawTypes)));
-$categories = Database::fetchAll("SELECT id, name FROM categories WHERE active=1 ORDER BY name");
 $defTerms   = getSetting('default_terms', '');
+$categoriesWithProducts = Database::fetchAll(
+    "SELECT c.id as cat_id, c.name as cat_name,
+            p.id as prod_id, p.name as prod_name,
+            COALESCE(p.price_per_person, 0) as price
+     FROM categories c
+     LEFT JOIN products p ON p.category_id = c.id AND p.active = 1
+     WHERE c.active = 1
+     ORDER BY c.sort_order, c.name, p.name"
+);
+$catMap = [];
+foreach ($categoriesWithProducts as $row) {
+    $cid = $row['cat_id'];
+    if (!isset($catMap[$cid])) {
+        $catMap[$cid] = ['id' => $cid, 'name' => $row['cat_name'], 'products' => []];
+    }
+    if ($row['prod_id']) {
+        $catMap[$cid]['products'][] = ['id' => $row['prod_id'], 'name' => $row['prod_name'], 'price' => (float)$row['price']];
+    }
+}
 $defObs     = getSetting('default_observations', '');
 
 $pageTitle  = 'Nuevo servicio';
@@ -212,38 +230,54 @@ include __DIR__ . '/../layout-top.php';
     <div class="card">
       <div class="card-header">
         <span class="card-title">&#127828; Productos</span>
-        <span id="itemCount" style="font-size:13px;color:var(--text-muted)">0 items</span>
+        <span id="itemCount" style="font-size:13px;color:var(--text-muted)">0 ítems</span>
       </div>
       <div class="card-body">
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-          <div style="position:relative;flex:1;min-width:200px">
-            <span class="search-icon" style="top:50%;transform:translateY(-50%)">&#128269;</span>
-            <input type="text" id="productSearch" placeholder="Buscar producto..."
-                   autocomplete="off" style="padding-left:36px">
-            <div id="productDropdown" class="search-dropdown" style="display:none"></div>
-          </div>
-          <select id="catFilter" style="width:auto;padding:9px 12px">
-            <option value="">Todas las categorias</option>
-            <?php foreach ($categories as $cat): ?>
-            <option value="<?= $cat['id'] ?>"><?= clean($cat['name']) ?></option>
-            <?php endforeach; ?>
-          </select>
-          <button type="button" onclick="addManualItem()" class="btn btn-ghost btn-sm">+ Manual</button>
-        </div>
 
-        <div class="items-header">
-          <span style="flex:3">Producto</span>
-          <span style="flex:1.2;text-align:center">Modo</span>
-          <span style="flex:1.1;text-align:right">Precio unit.</span>
-          <span style="flex:.9;text-align:center">Cant.</span>
-          <span style="flex:.8;text-align:center">Desc.%</span>
-          <span style="flex:1.1;text-align:right">Subtotal</span>
-          <span style="width:32px"></span>
+        <?php foreach ($catMap as $cat): ?>
+        <div class="cat-block" data-cat-id="<?= (int)$cat['id'] ?>">
+          <div class="cat-hdr" onclick="toggleCat(this)">
+            <span class="cat-name"><?= clean($cat['name']) ?></span>
+            <span class="cat-count">0 ítems</span>
+            <span class="cat-chev">&#9662;</span>
+          </div>
+          <div class="cat-body">
+            <div class="cat-items"></div>
+            <div class="cat-sep" style="display:none"></div>
+            <div class="cat-pills">
+              <?php foreach ($cat['products'] as $p): ?>
+              <button type="button" class="cat-pill"
+                      data-product-id="<?= (int)$p['id'] ?>"
+                      data-price="<?= number_format($p['price'], 2, '.', '') ?>"
+                      data-name="<?= clean($p['name']) ?>"
+                      onclick="addProductFromPill(this)">
+                + <?= clean($p['name']) ?>
+              </button>
+              <?php endforeach; ?>
+              <?php if (empty($cat['products'])): ?>
+              <span style="font-size:12px;color:var(--text-muted)">Sin productos en el catálogo</span>
+              <?php endif; ?>
+            </div>
+            <div class="cat-free">
+              <div class="cat-free-lbl">Ítem personalizado</div>
+              <div class="cat-free-row">
+                <input type="text" class="cat-free-name" placeholder="Nombre del ítem...">
+                <input type="text" class="cat-free-price" inputmode="decimal" placeholder="S/ precio">
+                <button type="button" class="cat-free-btn" onclick="addFreeItem(this)">Agregar</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="quoteItemsContainer"></div>
-        <div id="emptyItems" style="text-align:center;padding:24px;color:var(--text-muted);font-size:14px">
-          Busca o agrega productos arriba
+        <?php endforeach; ?>
+
+        <?php if (empty($catMap)): ?>
+        <div style="text-align:center;padding:32px;color:var(--text-muted)">
+          <div style="font-size:14px">No hay categorías activas.
+            <a href="<?= APP_URL ?>/admin/categories" style="color:var(--red)">Crear categoría →</a>
+          </div>
         </div>
+        <?php endif; ?>
+
       </div>
     </div>
 
@@ -321,50 +355,22 @@ include __DIR__ . '/../layout-top.php';
 </div>
 </form>
 
+<!-- Template de ítem (referencia para el submit del form) -->
 <template id="itemRowTemplate">
   <div class="item-row" data-idx="__IDX__">
-    <div class="item-name-col">
-      <strong class="item-name-text">__NAME__</strong>
-      <input type="hidden" name="items[__IDX__][product_id]" value="__PRODUCT_ID__">
-      <input type="hidden" name="items[__IDX__][name]"       value="__NAME__">
-      <input type="hidden" name="items[__IDX__][description]" value="__DESC__">
-      <button type="button" class="btn-del" onclick="removeItem(this)" title="Quitar" style="display:none">✕</button>
-    </div>
-    <div class="item-mode-col item-field">
-      <span class="item-field-label">Modo</span>
-      <select name="items[__IDX__][price_mode]" data-field="price_mode"
-              data-per-person="__PRICE_PP__" data-per-event="__PRICE_PE__" class="input-sm">
-        <option value="per_person">x persona</option>
-        <option value="per_event">x evento</option>
-        <option value="custom">Libre</option>
-      </select>
-    </div>
-    <div class="item-price-col item-field">
-      <span class="item-field-label">Precio</span>
-      <input type="text" inputmode="decimal" name="items[__IDX__][unit_price]"
-             data-field="unit_price" value="__PRICE_PP__" placeholder="0.00"
-             class="input-sm text-right" readonly>
-    </div>
-    <div class="item-qty-col item-field">
-      <span class="item-field-label">Cant.</span>
-      <input type="text" inputmode="decimal" name="items[__IDX__][quantity]"
-             data-field="quantity" value="" placeholder="1" class="input-sm text-center">
-    </div>
-    <div class="item-disc-col item-field">
-      <span class="item-field-label">Desc.%</span>
-      <div style="position:relative">
-        <input type="text" inputmode="decimal" name="items[__IDX__][discount_pct]"
-               data-field="discount_pct" value="" placeholder="0" class="input-sm text-center">
-        <span class="pct-symbol">%</span>
-      </div>
-    </div>
-    <div class="item-sub-col item-field">
-      <span class="item-field-label">Subtotal</span>
-      <span data-field="subtotal" class="subtotal-display">S/ 0.00</span>
-    </div>
-    <div class="item-del-col">
-      <button type="button" class="btn-del" onclick="removeItem(this)" title="Quitar">✕</button>
-    </div>
+    <span class="item-name">__NAME__</span>
+    <span class="item-price">__PRICE_DISPLAY__</span>
+    <input type="text" inputmode="decimal"
+           name="items[__IDX__][quantity]" data-field="quantity"
+           value="1" placeholder="0" class="item-qty">
+    <span class="item-total" data-field="subtotal">S/ 0.00</span>
+    <button type="button" class="item-del" onclick="removeItem(this)">&#x2715;</button>
+    <input type="hidden" name="items[__IDX__][product_id]" value="__PRODUCT_ID__">
+    <input type="hidden" name="items[__IDX__][name]" value="__NAME__">
+    <input type="hidden" name="items[__IDX__][unit_price]" data-field="unit_price" value="__UNIT_PRICE__">
+    <input type="hidden" name="items[__IDX__][price_mode]" value="custom">
+    <input type="hidden" name="items[__IDX__][discount_pct]" value="0">
+    <input type="hidden" name="items[__IDX__][description]" value="">
   </div>
 </template>
 
