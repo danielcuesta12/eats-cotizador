@@ -11,12 +11,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
 
     // --- Datos cabecera ---
-    $clientId     = cleanInt($_POST['client_id']    ?? 0);
-    $eventType    = clean($_POST['event_type']       ?? '');
-    $eventDate    = clean($_POST['event_date']       ?? '');
-    $eventLoc     = clean($_POST['event_location']   ?? '');
-    $numPeople    = cleanInt($_POST['num_people']    ?? 0);
-    $igvType      = in_array($_POST['igv_type']??'', ['none','10.5','18']) ? $_POST['igv_type'] : 'none';
+    $clientId        = cleanInt($_POST['client_id']    ?? 0);
+    $eventType       = clean($_POST['event_type']       ?? '');
+    $eventDate       = clean($_POST['event_date']       ?? '');
+    $eventLoc        = clean($_POST['event_location']   ?? '');
+    $numPeople       = cleanInt($_POST['num_people']    ?? 0);
+    $showInCalendar  = isset($_POST['show_in_calendar']) ? 1 : 0;
+    $igvType         = in_array($_POST['igv_type']??'', ['none','18']) ? $_POST['igv_type'] : 'none';
     $discPct      = min(100, max(0, cleanFloat($_POST['discount_pct']   ?? 0)));
     $extrasAmt    = max(0, cleanFloat($_POST['extras_amount']  ?? 0));
     $extrasDetail = clean($_POST['extras_detail']    ?? '');
@@ -26,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // --- Validaciones cabecera ---
     if (!$clientId)  $errors[] = 'Selecciona un cliente.';
-    if (!$eventType) $errors[] = 'Indica el tipo de evento.';
+    if (!$eventType) $errors[] = 'Indica el tipo de servicio.';
 
     // --- Ítems ---
     $items     = $_POST['items'] ?? [];
@@ -48,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $itemsClean[] = compact('name','productId','priceMode','unitPrice','qty','discItem','sub','desc');
     }
 
-    if (empty($itemsClean)) $errors[] = 'Agrega al menos un producto a la cotización.';
+    if (empty($itemsClean)) $errors[] = 'Agrega al menos un producto a la propuesta.';
 
     if (empty($errors)) {
         // --- Calcular totales ---
@@ -65,14 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $token       = generateToken();
         $validDate   = $validUntil ?: date('Y-m-d', strtotime('+' . getSetting('quote_validity_days', 15) . ' days'));
 
-        // --- Insertar cotización ---
+        // --- Insertar propuesta ---
         $quoteId = Database::insert(
             "INSERT INTO quotes
              (quote_number, client_id, user_id, event_type, event_date, event_location,
               num_people, subtotal, discount_pct, discount_amount, extras_amount, extras_detail,
               igv_type, igv_amount, total, price_per_person,
-              observations, terms, status, public_token, valid_until)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+              observations, terms, status, public_token, valid_until, show_in_calendar)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             [
                 $quoteNumber, $clientId, $_SESSION['user_id'],
                 $eventType,
@@ -86,6 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'borrador',
                 $token,
                 $validDate,
+                $showInCalendar,
             ]
         );
 
@@ -104,10 +106,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         Database::insert(
             "INSERT INTO quote_status_log (quote_id, user_id, from_status, to_status, note)
              VALUES (?,?,?,?,?)",
-            [$quoteId, $_SESSION['user_id'], null, 'borrador', 'Cotización creada']
+            [$quoteId, $_SESSION['user_id'], null, 'borrador', 'Propuesta creada']
         );
 
-        flashMessage('success', "Cotización {$quoteNumber} creada correctamente.");
+        flashMessage('success', "Propuesta {$quoteNumber} creada correctamente.");
         redirect('/quotes/edit.php?id=' . $quoteId);
     }
 }
@@ -119,7 +121,7 @@ $defaultTerms = getSetting('default_terms');
 $rawTypes   = getSetting('event_types', 'Corporativo,Boda,Cumpleaños,Social / Familiar,Feria gastronómica,Food truck,Otro');
 $eventTypes = array_filter(array_map('trim', explode(',', $rawTypes)));
 
-$pageTitle  = 'Nueva cotización';
+$pageTitle  = 'Nueva propuesta';
 $activePage = 'quote-new';
 
 $extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css">';
@@ -144,7 +146,7 @@ include __DIR__ . '/../admin/layout-top.php';
     <!-- SECCIÓN 1: Datos del evento -->
     <div class="card">
       <div class="card-header">
-        <span class="card-title">📅 Datos del evento</span>
+        <span class="card-title">📅 Datos del servicio</span>
       </div>
       <div class="card-body">
 
@@ -167,9 +169,9 @@ include __DIR__ . '/../admin/layout-top.php';
         </div>
 
         <div class="form-row form-row-2">
-          <!-- Tipo de evento -->
+          <!-- Tipo de servicio -->
           <div class="form-group">
-            <label class="form-required">Tipo de evento</label>
+            <label class="form-required">Tipo de servicio</label>
             <select name="event_type" id="eventType" required>
               <option value="">Seleccionar…</option>
               <?php foreach ($eventTypes as $et): ?>
@@ -179,9 +181,9 @@ include __DIR__ . '/../admin/layout-top.php';
               <?php endforeach; ?>
             </select>
           </div>
-          <!-- Fecha del evento -->
+          <!-- Fecha de inicio -->
           <div class="form-group">
-            <label>Fecha del evento</label>
+            <label>Fecha de inicio</label>
             <input type="date" name="event_date"
                    value="<?= clean($_POST['event_date'] ?? '') ?>"
                    min="<?= date('Y-m-d') ?>">
@@ -189,12 +191,22 @@ include __DIR__ . '/../admin/layout-top.php';
         </div>
 
         <div class="form-row form-row-2">
+          <!-- Agregar al calendario -->
+          <div class="form-group" style="grid-column:1/-1">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600">
+              <input type="checkbox" name="show_in_calendar" value="1" id="calendarToggle"
+                     style="width:16px;height:16px;cursor:pointer;accent-color:var(--red)"
+                     <?= isset($_POST['show_in_calendar']) ? 'checked' : '' ?>>
+              Agregar al calendario
+            </label>
+            <div class="form-hint">Mostrar esta propuesta en el calendario de servicios</div>
+          </div>
           <!-- Lugar -->
           <div class="form-group">
-            <label>Lugar del evento</label>
+            <label>Lugar del servicio</label>
             <input type="text" name="event_location"
                    value="<?= clean($_POST['event_location'] ?? '') ?>"
-                   placeholder="Local, dirección…">
+                   placeholder="Oficina, planta, dirección…">
           </div>
           <!-- N° personas -->
           <div class="form-group">
@@ -302,9 +314,8 @@ include __DIR__ . '/../admin/layout-top.php';
         <div class="form-group">
           <label>IGV</label>
           <select name="igv_type" id="igv_type" class="igv-select">
-            <option value="none"  <?= ($_POST['igv_type']??'none')==='none' ?'selected':'' ?>>Sin IGV</option>
-            <option value="10.5"  <?= ($_POST['igv_type']??'')==='10.5'  ?'selected':'' ?>>IGV 10.5%</option>
-            <option value="18"    <?= ($_POST['igv_type']??'')==='18'    ?'selected':'' ?>>IGV 18%</option>
+            <option value="none" <?= ($_POST['igv_type']??'none')==='none' ?'selected':'' ?>>Sin IGV</option>
+            <option value="18"   <?= ($_POST['igv_type']??'')==='18'   ?'selected':'' ?>>IGV 18%</option>
           </select>
         </div>
 
@@ -368,7 +379,7 @@ include __DIR__ . '/../admin/layout-top.php';
         <input type="hidden" id="calc_per_person"   name="calc_per_person"   value="0">
 
         <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-top:20px">
-          💾 Guardar cotización
+          💾 Guardar propuesta
         </button>
         <a href="<?= APP_URL ?>/admin/dashboard.php" class="btn btn-ghost btn-block" style="margin-top:8px">
           Cancelar

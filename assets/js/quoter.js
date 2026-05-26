@@ -56,7 +56,7 @@ function recalculate() {
   const igvType   = document.getElementById('igv_type')?.value || 'none';
   const numPeople = parseInt(document.getElementById('num_people')?.value      || 0);
 
-  const igvRate   = igvType === '18' ? 0.18 : igvType === '10.5' ? 0.105 : 0;
+  const igvRate   = igvType === '18' ? 0.18 : 0;
   const discAmt   = subtotal * (discPct / 100);
   const base      = subtotal - discAmt + extrasAmt;
   const igvAmt    = base * igvRate;
@@ -380,7 +380,7 @@ document.getElementById('quoteForm').addEventListener('submit', function(e) {
   }
   if (!items.length) {
     e.preventDefault();
-    alert('Agrega al menos un producto a la cotización.');
+    alert('Agrega al menos un producto a la propuesta.');
     document.getElementById('productSearch').focus();
     return;
   }

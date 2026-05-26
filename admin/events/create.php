@@ -10,14 +10,15 @@ $errors = array();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
 
-    $clientId     = cleanInt(isset($_POST['client_id'])       ? $_POST['client_id']       : 0);
-    $eventType    = clean(isset($_POST['event_type'])         ? $_POST['event_type']       : '');
-    $eventDate    = clean(isset($_POST['event_date'])         ? $_POST['event_date']       : '');
-    $eventTime    = clean(isset($_POST['event_time'])         ? $_POST['event_time']       : '');
-    $eventDur     = clean(isset($_POST['event_duration'])     ? $_POST['event_duration']   : '');
-    $eventLoc     = clean(isset($_POST['event_location'])     ? $_POST['event_location']   : '');
-    $numPeople    = cleanInt(isset($_POST['num_people'])      ? $_POST['num_people']       : 0);
-    $igvType      = in_array(isset($_POST['igv_type'])?$_POST['igv_type']:'', array('none','10.5','18')) ? $_POST['igv_type'] : 'none';
+    $clientId       = cleanInt(isset($_POST['client_id'])       ? $_POST['client_id']       : 0);
+    $eventType      = clean(isset($_POST['event_type'])         ? $_POST['event_type']       : '');
+    $eventDate      = clean(isset($_POST['event_date'])         ? $_POST['event_date']       : '');
+    $eventTime      = clean(isset($_POST['event_time'])         ? $_POST['event_time']       : '');
+    $eventDur       = clean(isset($_POST['event_duration'])     ? $_POST['event_duration']   : '');
+    $eventLoc       = clean(isset($_POST['event_location'])     ? $_POST['event_location']   : '');
+    $numPeople      = cleanInt(isset($_POST['num_people'])      ? $_POST['num_people']       : 0);
+    $showInCalendar = isset($_POST['show_in_calendar']) ? 1 : 0;
+    $igvType        = in_array(isset($_POST['igv_type'])?$_POST['igv_type']:'', array('none','18')) ? $_POST['igv_type'] : 'none';
     $discPct      = min(100, max(0, cleanFloat(isset($_POST['discount_pct'])  ? $_POST['discount_pct']  : 0)));
     $extrasAmt    = max(0, cleanFloat(isset($_POST['extras_amount'])          ? $_POST['extras_amount'] : 0));
     $extrasDet    = clean(isset($_POST['extras_detail'])      ? $_POST['extras_detail']    : '');
@@ -26,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $validUntil   = clean(isset($_POST['valid_until'])        ? $_POST['valid_until']      : '');
 
     if (!$clientId) $errors[] = 'Selecciona un cliente.';
-    if (!$eventDate) $errors[] = 'La fecha del evento es obligatoria.';
 
     $items = array();
     $rawItems = isset($_POST['items']) ? $_POST['items'] : array();
@@ -75,14 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              num_people, valid_until, igv_type, igv_amount,
              discount_pct, discount_amount, extras_amount, extras_detail,
              subtotal, total, price_per_person, observations, terms,
-             public_token, accepted_at, created_at)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),NOW())",
+             public_token, show_in_calendar, accepted_at, created_at)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),NOW())",
             array($quoteNumber, $_SESSION['user_id'], $clientId, 'aceptada', 'event',
-             $eventType, $eventDate, $eventTime, $eventDur, $eventLoc,
+             $eventType, $eventDate ?: null, $eventTime, $eventDur, $eventLoc,
              $numPeople, $validUntil, $igvType, $igvAmt,
              $discPct, $discAmt, $extrasAmt, $extrasDet,
              $subtotal, $total, $perPerson, $observations, $terms,
-             generateToken(24))
+             generateToken(24), $showInCalendar)
         );
 
         foreach ($items as $i => $item) {
@@ -97,10 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         Database::insert(
             "INSERT INTO quote_status_log (quote_id,user_id,from_status,to_status,note) VALUES (?,?,?,?,?)",
-            array($quoteId, $_SESSION['user_id'], '', 'aceptada', 'Evento creado directamente')
+            array($quoteId, $_SESSION['user_id'], '', 'aceptada', 'Servicio creado directamente')
         );
 
-        flashMessage('success', 'Evento ' . $quoteNumber . ' creado correctamente.');
+        flashMessage('success', 'Servicio ' . $quoteNumber . ' creado correctamente.');
         redirect('/quotes/edit.php?id=' . $quoteId);
     }
 }
@@ -111,7 +111,7 @@ $categories = Database::fetchAll("SELECT id, name FROM categories WHERE active=1
 $defTerms   = getSetting('default_terms', '');
 $defObs     = getSetting('default_observations', '');
 
-$pageTitle  = 'Nuevo evento';
+$pageTitle  = 'Nuevo servicio';
 $activePage = 'event-new';
 $extraHead  = '
 <link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css">
@@ -125,10 +125,10 @@ include __DIR__ . '/../layout-top.php';
 <div class="breadcrumb">
   <a href="<?php echo APP_URL; ?>/admin/dashboard">Dashboard</a>
   <span class="breadcrumb-sep">›</span>
-  <span class="breadcrumb-current">Nuevo evento</span>
+  <span class="breadcrumb-current">Nuevo servicio</span>
 </div>
 
-<div class="event-badge">&#128197; Evento directo — se registra como aceptado inmediatamente</div>
+<div class="event-badge">&#128197; Servicio directo — se registra como activo inmediatamente</div>
 
 <?php foreach ($errors as $e): ?>
   <div class="alert alert-error">&#10007; <?php echo htmlspecialchars($e); ?></div>
@@ -143,7 +143,7 @@ include __DIR__ . '/../layout-top.php';
   <div class="quoter-left">
 
     <div class="card">
-      <div class="card-header"><span class="card-title">&#128197; Datos del evento</span></div>
+      <div class="card-header"><span class="card-title">&#128197; Datos del servicio</span></div>
       <div class="card-body">
 
         <div class="form-group">
@@ -164,7 +164,7 @@ include __DIR__ . '/../layout-top.php';
 
         <div class="form-row form-row-2">
           <div class="form-group">
-            <label class="form-required">Tipo de evento</label>
+            <label class="form-required">Tipo de servicio</label>
             <select name="event_type" required>
               <option value="">Seleccionar...</option>
               <?php foreach ($eventTypes as $et): ?>
@@ -173,7 +173,7 @@ include __DIR__ . '/../layout-top.php';
             </select>
           </div>
           <div class="form-group">
-            <label>Fecha del evento</label>
+            <label>Fecha de inicio</label>
             <input type="date" name="event_date" min="<?= date('Y-m-d') ?>">
           </div>
           <div class="form-group">
@@ -187,9 +187,17 @@ include __DIR__ . '/../layout-top.php';
         </div>
 
         <div class="form-row form-row-2">
+          <div class="form-group" style="grid-column:1/-1">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600">
+              <input type="checkbox" name="show_in_calendar" value="1" id="calendarToggle"
+                     style="width:16px;height:16px;cursor:pointer;accent-color:#7c3aed">
+              Agregar al calendario
+            </label>
+            <div class="form-hint">Mostrar este servicio en el calendario</div>
+          </div>
           <div class="form-group">
-            <label>Lugar del evento</label>
-            <input type="text" name="event_location" placeholder="Local, direccion...">
+            <label>Lugar del servicio</label>
+            <input type="text" name="event_location" placeholder="Oficina, planta, dirección...">
           </div>
           <div class="form-group">
             <label>N&ordm; de personas</label>
@@ -264,7 +272,6 @@ include __DIR__ . '/../layout-top.php';
           <label>IGV</label>
           <select name="igv_type" id="igv_type" class="igv-select">
             <option value="none">Sin IGV</option>
-            <option value="10.5">IGV 10.5%</option>
             <option value="18">IGV 18%</option>
           </select>
         </div>
@@ -303,7 +310,7 @@ include __DIR__ . '/../layout-top.php';
 
         <button type="submit" class="btn btn-primary btn-lg btn-block"
                 style="margin-top:16px;background:#7c3aed;border-color:#7c3aed">
-          &#128197; Guardar evento
+          &#128197; Guardar servicio
         </button>
         <a href="<?= APP_URL ?>/admin/dashboard" class="btn btn-ghost btn-block" style="margin-top:8px">Cancelar</a>
 
