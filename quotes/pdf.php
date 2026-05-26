@@ -25,7 +25,27 @@ if (isLoggedIn() && $id) {
 
 if (!$quote) { http_response_code(404); die('<h2>Cotizacion no encontrada</h2>'); }
 
-$items    = Database::fetchAll("SELECT * FROM quote_items WHERE quote_id=? ORDER BY sort_order", array($quote['id']));
+$items = Database::fetchAll(
+    "SELECT qi.*,
+            COALESCE(c.name, 'Otros') as category_name,
+            COALESCE(c.sort_order, 9999) as cat_sort_order
+     FROM quote_items qi
+     LEFT JOIN products p ON p.id = qi.product_id
+     LEFT JOIN categories c ON c.id = p.category_id
+     WHERE qi.quote_id = ?
+     ORDER BY COALESCE(c.sort_order, 9999), COALESCE(c.name, 'Otros'), qi.sort_order",
+    array($quote['id'])
+);
+
+// Agrupar ítems por categoría
+$itemsByCategory = array();
+foreach ($items as $item) {
+    $cat = $item['category_name'];
+    if (!isset($itemsByCategory[$cat])) {
+        $itemsByCategory[$cat] = array();
+    }
+    $itemsByCategory[$cat][] = $item;
+}
 $isPublic = !isLoggedIn();
 $co = array(
     'name'    => getSetting('company_name',        'El Gringo Burger Joint'),
@@ -66,7 +86,7 @@ $waLink = $clientPhone ? "https://wa.me/" . $clientPhone . "?text=" . $waMsg : "
 <link rel="icon" type="image/x-icon" href="<?php echo APP_URL; ?>/assets/img/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="<?php echo APP_URL; ?>/assets/img/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="<?php echo APP_URL; ?>/assets/img/favicon-180.png">
-<title>Cotizacion <?php echo clean($quote['quote_number']); ?></title>
+<title>Propuesta <?php echo clean($quote['quote_number']); ?></title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--red:<?php echo htmlspecialchars($c1); ?>;--text-on-red:<?php echo htmlspecialchars($co['color2']); ?>;--border:#e8e8e8;--muted:#888;--light:#f7f7f7}
@@ -100,6 +120,7 @@ tr:nth-child(even) td{background:#fafafa}
 .td-name{font-weight:600}
 .td-desc{font-size:10px;color:#999;font-style:italic;margin-top:1px}
 .td-mode{display:inline-block;background:#f0f0f0;border-radius:3px;padding:1px 5px;font-size:10px;color:#555}
+.td-cat-hdr td{background:#f5f5f5;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#888;padding:5px 10px;border-bottom:1px solid #e8e8e8}
 .totals-wrap{display:flex;justify-content:flex-end;padding:12px 16px}
 .totals-box{width:220px}
 .tot-row{display:flex;justify-content:space-between;font-size:12px;color:#666;padding:4px 0;border-bottom:1px solid #f5f5f5}
@@ -177,7 +198,7 @@ tr:nth-child(even) td{background:#fafafa}
       <?php endif; ?>
     </div>
     <div class="header-right">
-      <div class="header-label">Cotizacion</div>
+      <div class="header-label">Propuesta</div>
       <div class="header-number"><?php echo clean($quote['quote_number']); ?></div>
     </div>
   </div>
@@ -204,8 +225,8 @@ tr:nth-child(even) td{background:#fafafa}
     </div>
   </div>
   <div class="event-bar">
-    <div><span class="ev-label">Evento</span><span class="ev-val"><?php echo clean($quote['event_type']?:'—'); ?></span></div>
-    <div><span class="ev-label">Fecha</span><span class="ev-val"><?php echo $quote['event_date']?formatDate($quote['event_date']):'—'; ?></span></div>
+    <div><span class="ev-label">Servicio</span><span class="ev-val"><?php echo clean($quote['event_type']?:'—'); ?></span></div>
+    <div><span class="ev-label">Fecha de inicio</span><span class="ev-val"><?php echo $quote['event_date']?formatDate($quote['event_date']):'—'; ?></span></div>
     <div><span class="ev-label">Personas</span><span class="ev-val"><?php echo $quote['num_people']>0?$quote['num_people'].' pers.':'—'; ?></span></div>
     <div><span class="ev-label">Vigencia</span><span class="ev-val"><?php echo $quote['valid_until']?formatDate($quote['valid_until']):'—'; ?></span></div>
   </div>
@@ -222,10 +243,15 @@ tr:nth-child(even) td{background:#fafafa}
           <th style="width:14%" class="r">Subtotal</th>
         </tr></thead>
         <tbody>
-          <?php foreach ($items as $item):
+          <?php $showCatHeaders = count($itemsByCategory) > 1; ?>
+          <?php foreach ($itemsByCategory as $catName => $catItems): ?>
+          <?php if ($showCatHeaders): ?>
+          <tr class="td-cat-hdr"><td colspan="6"><?php echo clean($catName); ?></td></tr>
+          <?php endif; ?>
+          <?php foreach ($catItems as $item):
             $ml='Libre';
             if ($item['price_mode']==='per_person') $ml='&times; pers.';
-            if ($item['price_mode']==='per_event')  $ml='&times; evento';
+            if ($item['price_mode']==='per_event')  $ml='&times; servicio';
             $ds=$item['discount_pct']>0?number_format((float)$item['discount_pct'],1).'%':'&mdash;';
           ?>
           <tr>
@@ -236,6 +262,7 @@ tr:nth-child(even) td{background:#fafafa}
             <td class="c"><?php echo $ds; ?></td>
             <td class="r"><strong><?php echo formatMoney((float)$item['subtotal']); ?></strong></td>
           </tr>
+          <?php endforeach; ?>
           <?php endforeach; ?>
         </tbody>
       </table>
