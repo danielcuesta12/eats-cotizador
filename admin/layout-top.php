@@ -11,11 +11,10 @@
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <div class="sidebar-logo">&#127860;</div>
-    <div>
-      <div class="sidebar-brand-name">EATS</div>
-      <div class="sidebar-brand-sub">Cotizador</div>
-    </div>
+    <img src="<?php echo APP_URL; ?>/assets/img/LOGO_ROJO.png"
+         alt="EATS" width="40" height="40"
+         style="border-radius:50%;object-fit:cover;flex-shrink:0">
+    <div class="sidebar-brand-sub" style="font-size:14px;font-weight:700;color:#fff">COTIZADOR</div>
     <button class="sidebar-close" id="sidebarClose" aria-label="Cerrar menu">&#10005;</button>
   </div>
 
