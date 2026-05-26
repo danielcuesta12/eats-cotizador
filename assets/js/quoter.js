@@ -130,7 +130,7 @@ function addProductItem(catBlock, productId, name, price) {
     <span class="item-price">${fmtSoles(price)}</span>
     <input type="text" inputmode="decimal"
            name="items[${idx}][quantity]" data-field="quantity"
-           value="1" placeholder="0" class="item-qty">
+           value="" placeholder="0" class="item-qty" autocomplete="off">
     <span class="item-total" data-field="subtotal">S/ 0.00</span>
     <button type="button" class="item-del" onclick="removeItem(this)">&#x2715;</button>
     <input type="hidden" name="items[${idx}][product_id]" value="${parseInt(productId) || 0}">
@@ -182,7 +182,7 @@ function filterPills(input) {
   var query   = input.value.toLowerCase().trim();
   var catBody = input.closest('.cat-body');
   catBody.querySelectorAll('.cat-pill').forEach(function(pill) {
-    var name = pill.textContent.toLowerCase();
+    var name = pill.dataset.name ? pill.dataset.name.toLowerCase() : pill.textContent.toLowerCase();
     pill.style.display = (query === '' || name.includes(query)) ? '' : 'none';
   });
 }

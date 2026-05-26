@@ -162,7 +162,7 @@ $eventTypes = array_filter(array_map('trim', explode(',', $rawTypes)));
 $pageTitle  = 'Nueva propuesta';
 $activePage = 'quote-new';
 
-$extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=6">';
+$extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=7">';
 include __DIR__ . '/../admin/layout-top.php';
 ?>
 
@@ -171,7 +171,7 @@ include __DIR__ . '/../admin/layout-top.php';
   <div class="alert alert-error">✗ <?= $e ?></div>
 <?php endforeach; ?>
 
-<form method="post" id="quoteForm">
+<form method="post" id="quoteForm" autocomplete="off">
 <?= csrfField() ?>
 
 <div class="quoter-grid">
@@ -244,14 +244,14 @@ include __DIR__ . '/../admin/layout-top.php';
             <label>Lugar del servicio</label>
             <input type="text" name="event_location"
                    value="<?= clean($_POST['event_location'] ?? '') ?>"
-                   placeholder="Oficina, planta, dirección…">
+                   placeholder="Oficina, planta, dirección…" autocomplete="off">
           </div>
           <!-- N° personas -->
           <div class="form-group">
             <label>N° de personas</label>
             <input type="number" name="num_people" id="num_people"
                    value="<?= cleanInt($_POST['num_people'] ?? 0) ?>"
-                   min="0" step="1" placeholder="0">
+                   min="0" step="1" placeholder="0" autocomplete="off">
             <div class="form-hint">Para calcular precio por persona</div>
           </div>
         </div>
@@ -279,7 +279,7 @@ include __DIR__ . '/../admin/layout-top.php';
             <div class="cat-sep" style="display:none"></div>
             <div class="cat-pills">
               <?php if (count($cat['products']) > 3): ?>
-              <input type="text" class="cat-search" placeholder="Buscar producto..." oninput="filterPills(this)">
+              <input type="text" class="cat-search" placeholder="Buscar producto..." oninput="filterPills(this)" autocomplete="off">
               <?php endif; ?>
               <?php foreach ($cat['products'] as $p): ?>
               <button type="button" class="cat-pill"
@@ -297,8 +297,8 @@ include __DIR__ . '/../admin/layout-top.php';
             <div class="cat-free">
               <div class="cat-free-lbl">Ítem personalizado</div>
               <div class="cat-free-fields">
-                <input type="text" class="cat-free-name" placeholder="Nombre del ítem...">
-                <input type="text" class="cat-free-price" inputmode="decimal" placeholder="S/ precio">
+                <input type="text" class="cat-free-name" placeholder="Nombre del ítem..." autocomplete="off">
+                <input type="text" class="cat-free-price" inputmode="decimal" placeholder="S/ precio" autocomplete="off">
                 <button type="button" class="cat-free-btn" onclick="addFreeItem(this)">Agregar</button>
               </div>
             </div>
@@ -445,7 +445,7 @@ include __DIR__ . '/../admin/layout-top.php';
     <span class="item-price">__PRICE_DISPLAY__</span>
     <input type="text" inputmode="decimal"
            name="items[__IDX__][quantity]" data-field="quantity"
-           value="1" placeholder="0" class="item-qty">
+           value="" placeholder="0" class="item-qty" autocomplete="off">
     <span class="item-total" data-field="subtotal">S/ 0.00</span>
     <button type="button" class="item-del" onclick="removeItem(this)">&#x2715;</button>
     <input type="hidden" name="items[__IDX__][product_id]" value="__PRODUCT_ID__">
@@ -463,7 +463,7 @@ $extraScripts = '
 const API_URL   = "' . APP_URL . '/api/quotes.php";
 const CSRF_TOKEN = "' . csrfToken() . '";
 </script>
-<script src="' . APP_URL . '/assets/js/quoter.js?v=2"></script>
+<script src="' . APP_URL . '/assets/js/quoter.js?v=3"></script>
 ';
 include __DIR__ . '/../admin/layout-bottom.php';
 ?>

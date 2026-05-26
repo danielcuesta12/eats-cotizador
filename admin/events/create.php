@@ -146,7 +146,7 @@ $defObs     = getSetting('default_observations', '');
 $pageTitle  = 'Nuevo servicio';
 $activePage = 'event-new';
 $extraHead  = '
-<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=6">
+<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=7">
 <style>
 .event-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(124,58,237,.1);color:#7c3aed;border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600;margin-bottom:16px}
 </style>';
@@ -166,7 +166,7 @@ include __DIR__ . '/../layout-top.php';
   <div class="alert alert-error">&#10007; <?php echo htmlspecialchars($e); ?></div>
 <?php endforeach; ?>
 
-<form method="post" id="quoteForm">
+<form method="post" id="quoteForm" autocomplete="off">
 <?= csrfField() ?>
 <input type="hidden" name="origin" value="event">
 
@@ -210,11 +210,11 @@ include __DIR__ . '/../layout-top.php';
           </div>
           <div class="form-group">
             <label>Hora de inicio</label>
-            <input type="time" name="event_time">
+            <input type="time" name="event_time" autocomplete="off">
           </div>
           <div class="form-group">
             <label>Duracion</label>
-            <input type="text" name="event_duration" placeholder="Ej: 3 horas">
+            <input type="text" name="event_duration" placeholder="Ej: 3 horas" autocomplete="off">
           </div>
         </div>
 
@@ -229,11 +229,11 @@ include __DIR__ . '/../layout-top.php';
           </div>
           <div class="form-group">
             <label>Lugar del servicio</label>
-            <input type="text" name="event_location" placeholder="Oficina, planta, dirección...">
+            <input type="text" name="event_location" placeholder="Oficina, planta, dirección..." autocomplete="off">
           </div>
           <div class="form-group">
             <label>N&ordm; de personas</label>
-            <input type="number" name="num_people" id="num_people" min="0" placeholder="0">
+            <input type="number" name="num_people" id="num_people" min="0" placeholder="0" autocomplete="off">
             <div class="form-hint">Para calcular precio por persona</div>
           </div>
         </div>
@@ -260,7 +260,7 @@ include __DIR__ . '/../layout-top.php';
             <div class="cat-sep" style="display:none"></div>
             <div class="cat-pills">
               <?php if (count($cat['products']) > 3): ?>
-              <input type="text" class="cat-search" placeholder="Buscar producto..." oninput="filterPills(this)">
+              <input type="text" class="cat-search" placeholder="Buscar producto..." oninput="filterPills(this)" autocomplete="off">
               <?php endif; ?>
               <?php foreach ($cat['products'] as $p): ?>
               <button type="button" class="cat-pill"
@@ -278,8 +278,8 @@ include __DIR__ . '/../layout-top.php';
             <div class="cat-free">
               <div class="cat-free-lbl">Ítem personalizado</div>
               <div class="cat-free-fields">
-                <input type="text" class="cat-free-name" placeholder="Nombre del ítem...">
-                <input type="text" class="cat-free-price" inputmode="decimal" placeholder="S/ precio">
+                <input type="text" class="cat-free-name" placeholder="Nombre del ítem..." autocomplete="off">
+                <input type="text" class="cat-free-price" inputmode="decimal" placeholder="S/ precio" autocomplete="off">
                 <button type="button" class="cat-free-btn" onclick="addFreeItem(this)">Agregar</button>
               </div>
             </div>
@@ -379,7 +379,7 @@ include __DIR__ . '/../layout-top.php';
     <span class="item-price">__PRICE_DISPLAY__</span>
     <input type="text" inputmode="decimal"
            name="items[__IDX__][quantity]" data-field="quantity"
-           value="1" placeholder="0" class="item-qty">
+           value="" placeholder="0" class="item-qty" autocomplete="off">
     <span class="item-total" data-field="subtotal">S/ 0.00</span>
     <button type="button" class="item-del" onclick="removeItem(this)">&#x2715;</button>
     <input type="hidden" name="items[__IDX__][product_id]" value="__PRODUCT_ID__">
@@ -397,7 +397,7 @@ $extraScripts = '
 const API_URL    = "' . APP_URL . '/api/quotes.php";
 const CSRF_TOKEN = "' . csrfToken() . '";
 </script>
-<script src="' . APP_URL . '/assets/js/quoter.js?v=2"></script>
+<script src="' . APP_URL . '/assets/js/quoter.js?v=3"></script>
 ';
 include __DIR__ . '/../layout-bottom.php';
 ?>
