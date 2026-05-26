@@ -116,18 +116,16 @@
 }
 .cat-pill:hover { background: rgba(200,16,46,.18); border-color: var(--red); }
 
-.cat-free { padding: 0 14px 12px; }
+.cat-free { padding: 0 14px 12px; margin-top: 10px; }
 .cat-free-lbl {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: .5px;
+  letter-spacing: .4px;
   color: var(--text-muted);
   margin-bottom: 6px;
 }
-.cat-free-row {
+.cat-free-fields {
   display: flex;
-  flex-direction: row;
   gap: 8px;
   align-items: center;
 }
@@ -143,7 +141,7 @@
 }
 .cat-free-name:focus { border-color: var(--red); }
 .cat-free-price {
-  width: 120px;
+  width: 110px;
   flex-shrink: 0;
   padding: 7px 10px;
   border: 1.5px solid var(--border);
@@ -156,6 +154,8 @@
 }
 .cat-free-price:focus { border-color: var(--red); }
 .cat-free-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 7px 14px;
   background: var(--red);
   color: #fff;
@@ -165,7 +165,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: background .15s;
-  white-space: nowrap;
 }
 .cat-free-btn:hover { background: var(--red-dark); }
 
@@ -314,20 +313,17 @@
    MOBILE ≤ 768px
    ============================================================ */
 @media (max-width: 768px) {
-  /* Cat free row: nombre fila completa, precio+botón en fila abajo */
-  .cat-free-row {
-    flex-direction: row;
+  /* Cat free: nombre fila completa, precio+botón en fila abajo */
+  .cat-free-fields {
     flex-wrap: wrap;
-    gap: 6px;
   }
   .cat-free-name {
     flex: 0 0 100%;
-    width: 100%;
   }
   .cat-free-price {
     flex: 1;
+    min-width: 0;
     width: auto;
-    min-width: 80px;
   }
 
   /* Ítem agregado: card vertical */

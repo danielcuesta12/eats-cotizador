@@ -162,7 +162,7 @@ $eventTypes = array_filter(array_map('trim', explode(',', $rawTypes)));
 $pageTitle  = 'Nueva propuesta';
 $activePage = 'quote-new';
 
-$extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=2">';
+$extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=4">';
 include __DIR__ . '/../admin/layout-top.php';
 ?>
 
@@ -293,7 +293,7 @@ include __DIR__ . '/../admin/layout-top.php';
             </div>
             <div class="cat-free">
               <div class="cat-free-lbl">Ítem personalizado</div>
-              <div class="cat-free-row">
+              <div class="cat-free-fields">
                 <input type="text" class="cat-free-name" placeholder="Nombre del ítem...">
                 <input type="text" class="cat-free-price" inputmode="decimal" placeholder="S/ precio">
                 <button type="button" class="cat-free-btn" onclick="addFreeItem(this)">Agregar</button>
