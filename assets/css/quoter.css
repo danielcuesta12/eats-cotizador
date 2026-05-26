@@ -1,0 +1,232 @@
+/* ============================================================
+   quoter.css v4 — campos directo en flex row, sin wrappers
+   ============================================================ */
+
+/* Layout principal */
+.quoter-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 16px;
+  align-items: start;
+}
+.quoter-left  { display: flex; flex-direction: column; gap: 16px; }
+.quoter-right { position: sticky; top: 76px; }
+
+/* Totales */
+.totals-card { border: 2px solid var(--border); }
+.totals-table { display: flex; flex-direction: column; gap: 6px; }
+.total-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: var(--text-secondary); padding: 3px 0;
+}
+.total-final {
+  display: flex; justify-content: space-between;
+  font-size: 20px; font-weight: 800; color: var(--text-primary);
+  padding: 10px 0 0; margin-top: 8px; border-top: 2px solid var(--border);
+}
+.total-per-person { text-align: right; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* ============================================================
+   CABECERA DESKTOP
+   ============================================================ */
+.items-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: #fafafa;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   FILA ÍTEM — DESKTOP: flex horizontal directo
+   ============================================================ */
+.item-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-top: none;
+  background: #fff;
+}
+.item-row:last-child { border-radius: 0 0 8px 8px; }
+.item-row:hover { background: #fafafa; }
+
+/* Labels ocultos en desktop */
+.item-field-label { display: none; }
+
+/* Columnas */
+.item-name-col { flex: 2.5; min-width: 0; }
+.item-name-text {
+  display: block; font-size: 13px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.item-field { display: flex; align-items: center; }
+.item-mode-col  { flex: 1.2; }
+.item-price-col { flex: 1.1; }
+.item-qty-col   { flex: .85; }
+.item-disc-col  { flex: .75; }
+.item-sub-col   { flex: 1.1; justify-content: flex-end; }
+.item-del-col   { width: 28px; flex-shrink: 0; }
+
+/* ============================================================
+   INPUTS SIN FLECHITAS
+   ============================================================ */
+.input-sm {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-size: 13px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+}
+.input-sm::-webkit-inner-spin-button,
+.input-sm::-webkit-outer-spin-button { display: none; }
+.input-sm:focus { border-color: var(--red); background: #fff; }
+.input-sm[readonly] { background: #f0f0f0; color: var(--text-muted); cursor: default; }
+.text-right  { text-align: right; }
+.text-center { text-align: center; }
+
+.pct-symbol {
+  position: absolute; right: 7px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px; color: var(--text-muted); pointer-events: none;
+}
+
+.subtotal-display {
+  font-size: 13px; font-weight: 700;
+  color: var(--text-primary); white-space: nowrap;
+}
+
+.btn-del {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 1.5px solid var(--border);
+  border-radius: 6px; color: var(--text-muted);
+  cursor: pointer; font-size: 11px; transition: all .15s;
+  flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+}
+.btn-del:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+
+/* ============================================================
+   DROPDOWNS
+   ============================================================ */
+.search-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: #fff; border: 1.5px solid var(--border); border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index: 300;
+  max-height: 300px; overflow-y: auto;
+}
+.dropdown-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; cursor: pointer;
+  border-bottom: 1px solid var(--border); transition: background .1s;
+}
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:hover { background: var(--red-light); }
+.dropdown-item-img {
+  width: 36px; height: 36px; border-radius: 6px; object-fit: cover;
+  flex-shrink: 0; background: #f0f0f0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.dropdown-item-info { flex: 1; min-width: 0; }
+.dropdown-item-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dropdown-item-sub  { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.dropdown-item-price { font-size: 12px; font-weight: 700; color: var(--red); flex-shrink: 0; }
+.dropdown-empty   { padding: 18px; text-align: center; color: var(--text-muted); font-size: 13px; }
+.dropdown-loading { padding: 14px; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+/* Client chip */
+.client-chip { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 10px 14px; background: var(--bg-input); border: 1.5px solid var(--border); border-radius: 10px; }
+.client-chip-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--red); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.client-chip-info { flex: 1; min-width: 0; }
+.client-chip-name { font-size: 13px; font-weight: 600; }
+.client-chip-sub  { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.client-chip-remove { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 15px; padding: 4px; }
+.client-chip-remove:hover { color: #dc2626; }
+
+/* ============================================================
+   RESPONSIVE: columna derecha más angosta en pantallas medias
+   ============================================================ */
+@media (max-width: 1100px) {
+  .quoter-grid { grid-template-columns: 1fr 240px; }
+}
+@media (max-width: 960px) {
+  .quoter-grid { grid-template-columns: 1fr; }
+  .quoter-right { position: static; }
+}
+
+/* ============================================================
+   MOBILE ≤ 768px — card vertical por ítem
+   ============================================================ */
+@media (max-width: 768px) {
+  .items-header { display: none; }
+
+  /* Card vertical */
+  .item-row {
+    flex-wrap: wrap;
+    padding: 0;
+    gap: 0;
+    border-radius: 12px !important;
+    border: 1px solid var(--border) !important;
+    border-top: 1px solid var(--border) !important;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .item-row:last-child { margin-bottom: 0; }
+
+  /* Nombre ocupa toda la fila con el botón eliminar */
+  .item-name-col {
+    flex: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 11px 13px;
+    border-bottom: 1px solid var(--border);
+    background: #fafafa;
+    order: 0;
+  }
+  .item-name-text { white-space: normal; font-size: 14px; }
+
+  /* Botón eliminar visible en nombre */
+  .item-del-col { display: none; }
+  .item-name-col .btn-del { display: flex; flex-shrink: 0; }
+
+  /* Campos en grid 3 cols */
+  .item-field {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 10px;
+  }
+  .item-field-label {
+    display: block;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .4px;
+    color: var(--text-muted); margin-bottom: 4px;
+  }
+
+  .item-mode-col  { flex: 0 0 33.33%; order: 1; border-bottom: 1px solid var(--border); }
+  .item-price-col { flex: 0 0 33.33%; order: 2; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); }
+  .item-qty-col   { flex: 0 0 33.33%; order: 3; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); }
+  .item-disc-col  { flex: 0 0 50%;    order: 4; }
+  .item-sub-col   { flex: 0 0 50%;    order: 5; justify-content: flex-end; text-align: right; border-left: 1px solid var(--border); }
+
+  .input-sm { font-size: 15px; padding: 9px 10px; }
+  .subtotal-display { font-size: 16px; font-weight: 800; padding-top: 12px; }
+}

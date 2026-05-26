@@ -1,0 +1,19 @@
+# Entorno
+.env
+
+# Uploads de usuarios (logos, imágenes)
+assets/img/uploads/logos/
+assets/img/uploads/products/
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# Editor
+.vscode/
+.idea/
+
+# PHP
+vendor/
+composer.lock
