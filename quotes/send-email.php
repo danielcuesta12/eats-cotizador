@@ -20,8 +20,9 @@ $errors = array();
 $sent   = false;
 
 $company   = getSetting('company_name',  'EATS');
-$fromEmail = getSetting('company_email', 'cotizaciones@eats.pe');
-$replyTo   = getSetting('company_email', 'cotizaciones@eats.pe');
+$fromEmail = MAIL_FROM      ?: getSetting('company_email', '');
+$fromName  = MAIL_FROM_NAME ?: $company;
+$replyTo   = MAIL_REPLY_TO  ?: $fromEmail;
 $pubLink   = APP_URL . '/quotes/view.php?token=' . $quote['public_token'];
 
 // Asunto y cuerpo del email B2B adaptados al estado de la propuesta
@@ -30,9 +31,9 @@ $_daysSent  = $quote['sent_at'] ? (int)((time() - strtotime($quote['sent_at'])) 
 
 switch ($quote['status']) {
     case 'borrador':
-        $defSubject = 'Propuesta de alimentaci\xC3\xB3n ' . $quote['quote_number'] . ' â ' . $company;
+        $defSubject = 'Propuesta de alimentación ' . $quote['quote_number'] . ' — ' . $company;
         $defBody = 'Estimado/a ' . $quote['client_name'] . ',' . "\n\n"
-            . 'Nos complace compartirles la propuesta de alimentaci\xC3\xB3n ' . $quote['quote_number']
+            . 'Nos complace compartirles la propuesta de alimentación ' . $quote['quote_number']
             . ($_eventDate ? ' para el inicio del ' . $_eventDate : '') . '.' . "\n\n"
             . 'Pueden revisar todos los detalles en el siguiente enlace:' . "\n"
             . $pubLink . "\n\n"
@@ -41,33 +42,33 @@ switch ($quote['status']) {
             . 'Atentamente,' . "\n" . $company;
         break;
     case 'enviada':
-        $_diasStr = $_daysSent !== null ? ' hace ' . $_daysSent . ' d\xC3\xADa' . ($_daysSent !== 1 ? 's' : '') : '';
-        $defSubject = 'Seguimiento â Propuesta ' . $quote['quote_number'];
+        $_diasStr = $_daysSent !== null ? ' hace ' . $_daysSent . ' día' . ($_daysSent !== 1 ? 's' : '') : '';
+        $defSubject = 'Seguimiento — Propuesta ' . $quote['quote_number'];
         $defBody = 'Estimado/a ' . $quote['client_name'] . ',' . "\n\n"
             . 'Les escribimos para hacer seguimiento de la propuesta ' . $quote['quote_number']
             . ' que les enviamos' . $_diasStr . '.' . "\n\n"
-            . '\xC2\xBFTuvieron oportunidad de revisarla? Pueden consultarla en cualquier momento aqu\xC3\xAD:' . "\n"
+            . '¿Tuvieron oportunidad de revisarla? Pueden consultarla en cualquier momento aquí:' . "\n"
             . $pubLink . "\n\n"
             . 'Total: ' . formatMoney((float)$quote['total']) . "\n\n"
-            . 'Quedamos a su disposici\xC3\xB3n para cualquier duda o ajuste.' . "\n\n"
+            . 'Quedamos a su disposición para cualquier duda o ajuste.' . "\n\n"
             . 'Atentamente,' . "\n" . $company;
         break;
     case 'aceptada':
-        $defSubject = 'Coordinaci\xC3\xB3n de servicio â inicio ' . ($_eventDate ?: 'por confirmar') . ' â ' . $company;
+        $defSubject = 'Coordinación de servicio — inicio ' . ($_eventDate ?: 'por confirmar') . ' — ' . $company;
         $defBody = 'Estimado/a ' . $quote['client_name'] . ',' . "\n\n"
             . 'Gracias por confiar en ' . $company . '. Con el inicio del servicio'
-            . ($_eventDate ? ' el ' . $_eventDate : '') . ', nos gustar\xC3\xADa coordinar los \xC3\xBAltimos detalles operativos.' . "\n\n"
-            . 'Pueden revisar el detalle confirmado aqu\xC3\xAD:' . "\n"
+            . ($_eventDate ? ' el ' . $_eventDate : '') . ', nos gustaría coordinar los últimos detalles operativos.' . "\n\n"
+            . 'Pueden revisar el detalle confirmado aquí:' . "\n"
             . $pubLink . "\n\n"
-            . '\xC2\xBFTienen disponibilidad para una llamada breve esta semana? Responden este correo o nos contactan directamente.' . "\n\n"
+            . '¿Tienen disponibilidad para una llamada breve esta semana? Responden este correo o nos contactan directamente.' . "\n\n"
             . 'Atentamente,' . "\n" . $company;
         break;
     case 'rechazada':
     default:
-        $defSubject = 'Quedamos a su disposici\xC3\xB3n â ' . $company;
+        $defSubject = 'Quedamos a su disposición — ' . $company;
         $defBody = 'Estimado/a ' . $quote['client_name'] . ',' . "\n\n"
-            . 'Entendemos que por el momento no pudimos concretar. Quedamos a su disposici\xC3\xB3n para cuando requieran servicios de alimentaci\xC3\xB3n corporativa.' . "\n\n"
-            . 'Si en alg\xC3\xBAn momento retoman la b\xC3\xBAsqueda, con gusto preparamos una nueva propuesta a medida.' . "\n\n"
+            . 'Entendemos que por el momento no pudimos concretar. Quedamos a su disposición para cuando requieran servicios de alimentación corporativa.' . "\n\n"
+            . 'Si en algún momento retoman la búsqueda, con gusto preparamos una nueva propuesta a medida.' . "\n\n"
             . 'Atentamente,' . "\n" . $company;
         break;
 }
@@ -162,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $headers  = 'MIME-Version: 1.0' . "\r\n";
         $headers .= 'Content-Type: text/html; charset=UTF-8' . "\r\n";
-        $headers .= 'From: ' . $company . ' <' . $fromEmail . '>' . "\r\n";
+        $headers .= 'From: ' . $fromName . ' <' . $fromEmail . '>' . "\r\n";
         $headers .= 'Reply-To: ' . $replyTo . "\r\n";
         $headers .= 'X-Mailer: ElGringoCotizador/1.0' . "\r\n";
         $headers .= 'X-Priority: 1' . "\r\n";
