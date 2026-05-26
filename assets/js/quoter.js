@@ -175,6 +175,19 @@ function updateCatCount(catBlock) {
 }
 
 /* ============================================================
+   BÚSQUEDA EN VIVO DENTRO DE CATEGORÍA
+   ============================================================ */
+
+function filterPills(input) {
+  var query   = input.value.toLowerCase().trim();
+  var catBody = input.closest('.cat-body');
+  catBody.querySelectorAll('.cat-pill').forEach(function(pill) {
+    var name = pill.textContent.toLowerCase();
+    pill.style.display = (query === '' || name.includes(query)) ? '' : 'none';
+  });
+}
+
+/* ============================================================
    BÚSQUEDA DE CLIENTES
    ============================================================ */
 

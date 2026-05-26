@@ -128,7 +128,7 @@ $categoriesWithProducts = Database::fetchAll(
      FROM categories c
      LEFT JOIN products p ON p.category_id = c.id AND p.active = 1
      WHERE c.active = 1
-     ORDER BY c.name, p.name"
+     ORDER BY c.sort_order ASC, c.name, p.name"
 );
 $catMap = [];
 foreach ($categoriesWithProducts as $row) {
@@ -162,7 +162,7 @@ $eventTypes = array_filter(array_map('trim', explode(',', $rawTypes)));
 $pageTitle  = 'Nueva propuesta';
 $activePage = 'quote-new';
 
-$extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=5">';
+$extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=6">';
 include __DIR__ . '/../admin/layout-top.php';
 ?>
 
@@ -278,6 +278,9 @@ include __DIR__ . '/../admin/layout-top.php';
             <div class="cat-items"></div>
             <div class="cat-sep" style="display:none"></div>
             <div class="cat-pills">
+              <?php if (count($cat['products']) > 3): ?>
+              <input type="text" class="cat-search" placeholder="Buscar producto..." oninput="filterPills(this)">
+              <?php endif; ?>
               <?php foreach ($cat['products'] as $p): ?>
               <button type="button" class="cat-pill"
                       data-product-id="<?= (int)$p['id'] ?>"

@@ -99,6 +99,18 @@
   gap: 6px;
   padding: 12px 14px;
 }
+.cat-search {
+  flex: 0 0 100%;
+  padding: 7px 10px;
+  margin-bottom: 4px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .15s;
+  box-sizing: border-box;
+}
+.cat-search:focus { border-color: var(--red); }
 .cat-pill {
   display: inline-flex;
   align-items: center;

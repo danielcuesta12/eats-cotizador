@@ -115,7 +115,7 @@ $categoriesWithProducts = Database::fetchAll(
      FROM categories c
      LEFT JOIN products p ON p.category_id = c.id AND p.active = 1
      WHERE c.active = 1
-     ORDER BY c.name, p.name"
+     ORDER BY c.sort_order ASC, c.name, p.name"
 );
 $catMap = [];
 foreach ($categoriesWithProducts as $row) {
@@ -146,7 +146,7 @@ $defObs     = getSetting('default_observations', '');
 $pageTitle  = 'Nuevo servicio';
 $activePage = 'event-new';
 $extraHead  = '
-<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=5">
+<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=6">
 <style>
 .event-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(124,58,237,.1);color:#7c3aed;border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600;margin-bottom:16px}
 </style>';
@@ -259,6 +259,9 @@ include __DIR__ . '/../layout-top.php';
             <div class="cat-items"></div>
             <div class="cat-sep" style="display:none"></div>
             <div class="cat-pills">
+              <?php if (count($cat['products']) > 3): ?>
+              <input type="text" class="cat-search" placeholder="Buscar producto..." oninput="filterPills(this)">
+              <?php endif; ?>
               <?php foreach ($cat['products'] as $p): ?>
               <button type="button" class="cat-pill"
                       data-product-id="<?= (int)$p['id'] ?>"
