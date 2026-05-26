@@ -149,14 +149,14 @@ include __DIR__ . '/../layout-top.php';
           <div class="form-group">
             <label>Precio por persona (S/)</label>
             <input type="number" name="price_per_person"
-                   value="<?= number_format((float)$data['price_per_person'], 2, '.', '') ?>"
+                   value="<?= $data['price_per_person'] > 0 ? number_format((float)$data['price_per_person'], 2, '.', '') : '' ?>"
                    min="0" step="0.50" placeholder="0.00">
             <div class="form-hint">Se multiplica por N° de personas</div>
           </div>
           <div class="form-group">
             <label>Precio por evento (S/)</label>
             <input type="number" name="price_per_event"
-                   value="<?= number_format((float)$data['price_per_event'], 2, '.', '') ?>"
+                   value="<?= $data['price_per_event'] > 0 ? number_format((float)$data['price_per_event'], 2, '.', '') : '' ?>"
                    min="0" step="0.50" placeholder="0.00">
             <div class="form-hint">Precio fijo independiente de personas</div>
           </div>
@@ -209,7 +209,7 @@ include __DIR__ . '/../layout-top.php';
         <div class="form-group">
           <label>Orden de visualización</label>
           <input type="number" name="sort_order"
-                 value="<?= (int)$data['sort_order'] ?>" min="0" step="1">
+                 value="<?= $data['sort_order'] > 0 ? (int)$data['sort_order'] : '' ?>" min="0" step="1" placeholder="0">
           <div class="form-hint">Menor número = primero en lista</div>
         </div>
 
