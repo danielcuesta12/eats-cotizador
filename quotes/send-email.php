@@ -19,57 +19,56 @@ if (!$quote) {
 $errors = array();
 $sent   = false;
 
-$company   = getSetting('company_name',  'El Gringo Burger Joint');
-$fromEmail = 'cotizaciones@elgringo.pe';
-$replyTo   = 'daniel@elgringo.pe, eventos@elgringo.pe';
+$company   = getSetting('company_name',  'EATS');
+$fromEmail = getSetting('company_email', 'cotizaciones@eats.pe');
+$replyTo   = getSetting('company_email', 'cotizaciones@eats.pe');
 $pubLink   = APP_URL . '/quotes/view.php?token=' . $quote['public_token'];
 
-// Asunto y cuerpo del email adaptados al estado de la cotización
+// Asunto y cuerpo del email B2B adaptados al estado de la propuesta
 $_eventDate = $quote['event_date'] ? formatDate($quote['event_date']) : '';
 $_daysSent  = $quote['sent_at'] ? (int)((time() - strtotime($quote['sent_at'])) / 86400) : null;
 
 switch ($quote['status']) {
     case 'borrador':
-        $defSubject = 'Cotización ' . $quote['quote_number'] . ' — ' . $company;
-        $defBody = 'Estimado/a ' . $quote['client_name'] . ',' . "\n\n" .
-            'Te enviamos la cotización ' . $quote['quote_number'] .
-            ($_eventDate ? ' para tu evento del ' . $_eventDate : ' para tu evento') . '.' . "\n\n" .
-            'Puedes revisar todos los detalles en el siguiente enlace:' . "\n" .
-            $pubLink . "\n\n" .
-            'Total: ' . formatMoney((float)$quote['total']) . "\n\n" .
-            'Quedamos atentos a cualquier consulta. Puedes responder este correo y llegará directamente a nuestro equipo.' . "\n\n" .
-            'Saludos,' . "\n" . $company;
+        $defSubject = 'Propuesta de alimentaci\xC3\xB3n ' . $quote['quote_number'] . ' â ' . $company;
+        $defBody = 'Estimado/a ' . $quote['client_name'] . ',' . "\n\n"
+            . 'Nos complace compartirles la propuesta de alimentaci\xC3\xB3n ' . $quote['quote_number']
+            . ($_eventDate ? ' para el inicio del ' . $_eventDate : '') . '.' . "\n\n"
+            . 'Pueden revisar todos los detalles en el siguiente enlace:' . "\n"
+            . $pubLink . "\n\n"
+            . 'Total: ' . formatMoney((float)$quote['total']) . "\n\n"
+            . 'Quedamos atentos a cualquier consulta. Pueden responder este correo directamente.' . "\n\n"
+            . 'Atentamente,' . "\n" . $company;
         break;
     case 'enviada':
-        $_diasStr = $_daysSent !== null ? ' hace ' . $_daysSent . ' día' . ($_daysSent !== 1 ? 's' : '') : '';
-        $defSubject = 'Seguimiento — Cotización ' . $quote['quote_number'];
-        $defBody = 'Hola ' . $quote['client_name'] . ',' . "\n\n" .
-            'Te escribimos para hacer seguimiento de la cotización ' . $quote['quote_number'] .
-            ' que te enviamos' . $_diasStr . '.' . "\n\n" .
-            '¿Tuviste oportunidad de revisarla? Puedes consultarla en cualquier momento aquí:' . "\n" .
-            $pubLink . "\n\n" .
-            'Total: ' . formatMoney((float)$quote['total']) . "\n\n" .
-            'Quedamos atentos a cualquier duda o ajuste que necesites.' . "\n\n" .
-            'Saludos,' . "\n" . $company;
+        $_diasStr = $_daysSent !== null ? ' hace ' . $_daysSent . ' d\xC3\xADa' . ($_daysSent !== 1 ? 's' : '') : '';
+        $defSubject = 'Seguimiento â Propuesta ' . $quote['quote_number'];
+        $defBody = 'Estimado/a ' . $quote['client_name'] . ',' . "\n\n"
+            . 'Les escribimos para hacer seguimiento de la propuesta ' . $quote['quote_number']
+            . ' que les enviamos' . $_diasStr . '.' . "\n\n"
+            . '\xC2\xBFTuvieron oportunidad de revisarla? Pueden consultarla en cualquier momento aqu\xC3\xAD:' . "\n"
+            . $pubLink . "\n\n"
+            . 'Total: ' . formatMoney((float)$quote['total']) . "\n\n"
+            . 'Quedamos a su disposici\xC3\xB3n para cualquier duda o ajuste.' . "\n\n"
+            . 'Atentamente,' . "\n" . $company;
         break;
     case 'aceptada':
-        $defSubject = 'Coordinación del evento' . ($_eventDate ? ' — ' . $_eventDate : '') . ' — ' . $company;
-        $defBody = 'Hola ' . $quote['client_name'] . ',' . "\n\n" .
-            '¡Gracias por confiar en nosotros! Con el evento' .
-            ($_eventDate ? ' del ' . $_eventDate : '') . ' acercándose, queremos coordinar los últimos detalles contigo.' . "\n\n" .
-            'Puedes revisar el resumen confirmado aquí:' . "\n" .
-            $pubLink . "\n\n" .
-            '¿Tienes disponibilidad para conversar esta semana? Responde este correo o contáctanos directamente.' . "\n\n" .
-            'Saludos,' . "\n" . $company;
+        $defSubject = 'Coordinaci\xC3\xB3n de servicio â inicio ' . ($_eventDate ?: 'por confirmar') . ' â ' . $company;
+        $defBody = 'Estimado/a ' . $quote['client_name'] . ',' . "\n\n"
+            . 'Gracias por confiar en ' . $company . '. Con el inicio del servicio'
+            . ($_eventDate ? ' el ' . $_eventDate : '') . ', nos gustar\xC3\xADa coordinar los \xC3\xBAltimos detalles operativos.' . "\n\n"
+            . 'Pueden revisar el detalle confirmado aqu\xC3\xAD:' . "\n"
+            . $pubLink . "\n\n"
+            . '\xC2\xBFTienen disponibilidad para una llamada breve esta semana? Responden este correo o nos contactan directamente.' . "\n\n"
+            . 'Atentamente,' . "\n" . $company;
         break;
     case 'rechazada':
     default:
-        $defSubject = 'Seguimos disponibles — ' . $company;
-        $defBody = 'Hola ' . $quote['client_name'] . ',' . "\n\n" .
-            'Entendemos que por el momento no pudimos concretar. Queremos que sepas que quedamos a tu disposición para cuando lo necesites.' . "\n\n" .
-            'Si en algún momento retoman la búsqueda de un servicio de catering o food truck, con gusto les preparamos una nueva propuesta a medida.' . "\n\n" .
-            '¡Muchos éxitos!' . "\n\n" .
-            'Saludos,' . "\n" . $company;
+        $defSubject = 'Quedamos a su disposici\xC3\xB3n â ' . $company;
+        $defBody = 'Estimado/a ' . $quote['client_name'] . ',' . "\n\n"
+            . 'Entendemos que por el momento no pudimos concretar. Quedamos a su disposici\xC3\xB3n para cuando requieran servicios de alimentaci\xC3\xB3n corporativa.' . "\n\n"
+            . 'Si en alg\xC3\xBAn momento retoman la b\xC3\xBAsqueda, con gusto preparamos una nueva propuesta a medida.' . "\n\n"
+            . 'Atentamente,' . "\n" . $company;
         break;
 }
 
@@ -99,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <tr>
     <td style="background:#C8102E;padding:24px 28px">
       <p style="margin:0;font-size:20px;font-weight:800;color:#fff">' . htmlspecialchars($company) . '</p>
-      <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,.7)">Cotizacion de eventos</p>
+      <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,.7)">Propuesta de alimentaci&oacute;n corporativa</p>
     </td>
   </tr>
 
@@ -111,15 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <!-- Card de la cotización -->
       <table width="100%" style="background:#f7f7f7;border-radius:10px;padding:16px;margin-bottom:24px">
         <tr><td style="padding:4px 0">
-          <p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#999">N° Cotizacion</p>
+          <p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#999">N° Propuesta</p>
           <p style="margin:2px 0 0;font-size:16px;font-weight:800;color:#1a1a1a">' . htmlspecialchars($quote['quote_number']) . '</p>
         </td></tr>
         <tr><td style="padding:4px 0">
-          <p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#999">Tipo de evento</p>
+          <p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#999">Tipo de servicio</p>
           <p style="margin:2px 0 0;font-size:14px;color:#1a1a1a">' . htmlspecialchars($quote['event_type'] ?: '—') . '</p>
         </td></tr>
         ' . ($quote['event_date'] ? '<tr><td style="padding:4px 0">
-          <p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#999">Fecha del evento</p>
+          <p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#999">Fecha de inicio</p>
           <p style="margin:2px 0 0;font-size:14px;color:#1a1a1a">' . formatDate($quote['event_date']) . '</p>
         </td></tr>' : '') . '
         <tr><td style="padding:8px 0 4px">
@@ -134,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <td align="center">
             <a href="' . $pubLink . '"
                style="display:inline-block;background:#C8102E;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:15px;font-weight:700">
-              Ver cotizacion completa &rarr;
+              Ver propuesta completa &rarr;
             </a>
           </td>
         </tr>
@@ -188,13 +187,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle  = 'Enviar por email';
+$pageTitle  = 'Enviar propuesta por email';
 $activePage = 'quotes';
 include __DIR__ . '/../admin/layout-top.php';
 ?>
 
 <div class="breadcrumb">
-  <a href="<?php echo APP_URL; ?>/quotes/list.php">Cotizaciones</a>
+  <a href="<?php echo APP_URL; ?>/quotes/list.php">Propuestas</a>
   <span class="breadcrumb-sep">›</span>
   <a href="<?php echo APP_URL; ?>/quotes/edit.php?id=<?php echo $quote['id']; ?>"><?php echo clean($quote['quote_number']); ?></a>
   <span class="breadcrumb-sep">›</span>
@@ -203,7 +202,7 @@ include __DIR__ . '/../admin/layout-top.php';
 
 <div class="page-header">
   <div class="page-header-left">
-    <h1>&#9993; Enviar cotizacion por email</h1>
+    <h1>&#9993; Enviar propuesta por email</h1>
     <p><?php echo clean($quote['quote_number']); ?> — <?php echo clean($quote['client_name']); ?></p>
   </div>
 </div>
