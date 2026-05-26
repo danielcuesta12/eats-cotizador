@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'company_phone','company_email','company_website',
         'quote_prefix','quote_validity_days','default_igv',
         'default_terms','default_observations','whatsapp_number',
-        'pdf_primary_color','pdf_secondary_color',
+        'pdf_primary_color','pdf_secondary_color','event_types',
     ];
 
     foreach ($fields as $k) {
@@ -260,6 +260,22 @@ include __DIR__ . '/../layout-top.php';
                  style="width:18px;height:18px;accent-color:var(--red)">
           <span style="font-size:13px;color:var(--text-muted)">Visible</span>
         </label>
+      </div>
+    </div>
+
+    <!-- Tipos de servicio -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">🍽 Tipos de servicio</span></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Lista de tipos de servicio</label>
+          <input type="text" name="event_types"
+                 id="eventTypesInput"
+                 value="<?= clean($cfg['event_types'] ?? 'Alimentación masiva,Catering,Refrigerio,Evento corporativo') ?>"
+                 placeholder="Alimentación masiva,Catering,...">
+          <div class="form-hint">Separados por coma. Se usan en el selector de Nueva propuesta y Nuevo servicio.</div>
+        </div>
+        <div id="eventTypesPreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
       </div>
     </div>
 
@@ -554,6 +570,20 @@ function updatePreview() {
   tot.style.color      = c2;
 }
 updatePreview();
+
+var etInput = document.getElementById('eventTypesInput');
+if (etInput) {
+  function updateEventTypesPreview() {
+    var val = etInput.value;
+    var preview = document.getElementById('eventTypesPreview');
+    var types = val.split(',').map(function(t){ return t.trim(); }).filter(Boolean);
+    preview.innerHTML = types.map(function(t) {
+      return '<span style="background:var(--red-light);color:var(--red);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">'+t+'</span>';
+    }).join('');
+  }
+  etInput.addEventListener('input', updateEventTypesPreview);
+  updateEventTypesPreview();
+}
 </script>
 
 <?php include __DIR__ . '/../layout-bottom.php'; ?>
