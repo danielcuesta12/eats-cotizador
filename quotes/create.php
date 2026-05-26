@@ -124,11 +124,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $categoriesWithProducts = Database::fetchAll(
     "SELECT c.id as cat_id, c.name as cat_name,
             p.id as prod_id, p.name as prod_name,
-            COALESCE(p.price_per_person, 0) as price
+            COALESCE(p.price_per_person, p.price_per_event, 0) as price
      FROM categories c
      LEFT JOIN products p ON p.category_id = c.id AND p.active = 1
      WHERE c.active = 1
-     ORDER BY c.sort_order, c.name, p.name"
+     ORDER BY c.name, p.name"
 );
 $catMap = [];
 foreach ($categoriesWithProducts as $row) {
@@ -138,6 +138,20 @@ foreach ($categoriesWithProducts as $row) {
     }
     if ($row['prod_id']) {
         $catMap[$cid]['products'][] = ['id' => $row['prod_id'], 'name' => $row['prod_name'], 'price' => (float)$row['price']];
+    }
+}
+// Productos sin categoría asignada (category_id IS NULL) — bloque fallback
+$uncategorized = Database::fetchAll(
+    "SELECT id as prod_id, name as prod_name,
+            COALESCE(price_per_person, price_per_event, 0) as price
+     FROM products
+     WHERE active = 1 AND (category_id IS NULL OR category_id = 0)
+     ORDER BY name"
+);
+if (!empty($uncategorized)) {
+    $catMap[0] = ['id' => 0, 'name' => 'Sin categoría', 'products' => []];
+    foreach ($uncategorized as $p) {
+        $catMap[0]['products'][] = ['id' => $p['prod_id'], 'name' => $p['prod_name'], 'price' => (float)$p['price']];
     }
 }
 $defaultTerms = getSetting('default_terms');
@@ -446,7 +460,7 @@ $extraScripts = '
 const API_URL   = "' . APP_URL . '/api/quotes.php";
 const CSRF_TOKEN = "' . csrfToken() . '";
 </script>
-<script src="' . APP_URL . '/assets/js/quoter.js"></script>
+<script src="' . APP_URL . '/assets/js/quoter.js?v=2"></script>
 ';
 include __DIR__ . '/../admin/layout-bottom.php';
 ?>
