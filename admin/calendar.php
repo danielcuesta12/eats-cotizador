@@ -5,7 +5,7 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 requireLogin();
 
-// Cotizaciones y eventos para el calendario
+// Propuestas y servicios para el calendario — solo show_in_calendar=1
 $calQuotes = Database::fetchAll(
     "SELECT q.id, q.quote_number, q.status, q.origin,
             q.event_date, q.event_type,
@@ -15,6 +15,7 @@ $calQuotes = Database::fetchAll(
      FROM quotes q JOIN clients c ON c.id=q.client_id
      WHERE q.status IN ('enviada','aceptada')
        AND q.event_date IS NOT NULL AND q.event_date != ''
+       AND q.show_in_calendar = 1
      ORDER BY q.event_date ASC"
 );
 
@@ -46,7 +47,7 @@ include __DIR__ . '/layout-top.php';
 <div class="page-header">
   <div class="page-header-left">
     <h1>Calendario de eventos</h1>
-    <p>Cotizaciones enviadas, aceptadas y eventos directos</p>
+    <p>Propuestas enviadas, en servicio y servicios directos</p>
   </div>
   <a href="<?php echo APP_URL; ?>/admin/events/create" class="btn btn-secondary" style="color:#7c3aed;border-color:#7c3aed">
     &#128197; Nuevo evento

@@ -24,14 +24,16 @@ $smap     = array_column($byStatus, 'n', 'status');
 // Solicitudes pendientes
 $pendingReq = (int)Database::fetch("SELECT COUNT(*) as n FROM quote_requests WHERE status='pendiente'")['n'];
 
-// Cotizaciones para calendario (enviadas y aceptadas con fecha de evento)
+// Propuestas para calendario — solo las marcadas con show_in_calendar=1
 $calQuotes = Database::fetchAll(
     "SELECT q.id, q.quote_number, q.status, q.origin,
             q.event_date, q.event_type, q.event_time, q.event_duration,
             q.event_location, q.num_people, q.total,
             c.name as client_name
      FROM quotes q JOIN clients c ON c.id=q.client_id
-     WHERE q.status IN ('enviada','aceptada') AND q.event_date IS NOT NULL AND q.event_date != ''
+     WHERE q.status IN ('enviada','aceptada')
+       AND q.event_date IS NOT NULL AND q.event_date != ''
+       AND q.show_in_calendar = 1
      ORDER BY q.event_date ASC"
 );
 
@@ -73,14 +75,14 @@ include __DIR__ . '/layout-top.php';
 <!-- Stats compactos -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
   <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)">
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">Cot. este mes</div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">Prop. este mes</div>
     <div style="font-size:22px;font-weight:800;line-height:1"><?php echo (int)($statsCot['n']??0); ?></div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:2px">cotizaciones</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:2px">propuestas</div>
   </div>
   <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)">
     <div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">Facturado mes</div>
     <div style="font-size:15px;font-weight:800;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?php echo formatMoney((float)($statsFacturado['sum']??0)); ?></div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:2px">aceptadas</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:2px">en servicio</div>
   </div>
   <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)">
     <div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">Aceptadas</div>
@@ -140,21 +142,21 @@ include __DIR__ . '/layout-top.php';
 <!-- Últimas cotizaciones -->
 <div class="card">
   <div class="card-header">
-    <span class="card-title">Ultimas cotizaciones</span>
+    <span class="card-title">Ultimas propuestas</span>
     <a href="<?php echo APP_URL; ?>/quotes/list.php" class="btn btn-ghost btn-sm">Ver todas &rarr;</a>
   </div>
   <?php if (empty($recentQuotes)): ?>
   <div class="empty-state">
     <div class="empty-state-icon">&#128203;</div>
-    <h3>Sin cotizaciones</h3>
-    <a href="<?php echo APP_URL; ?>/quotes/create.php" class="btn btn-primary">+ Nueva cotizacion</a>
+    <h3>Sin propuestas</h3>
+    <a href="<?php echo APP_URL; ?>/quotes/create.php" class="btn btn-primary">+ Nueva propuesta</a>
   </div>
   <?php else: ?>
   <!-- Desktop -->
   <div class="dash-desktop">
     <div class="table-wrap" style="border:none;border-radius:0">
       <table class="data-table">
-        <thead><tr><th>N°</th><th>Cliente</th><th>Evento</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+        <thead><tr><th>N°</th><th>Cliente</th><th>Servicio</th><th>Total</th><th>Estado</th><th></th></tr></thead>
         <tbody>
           <?php foreach ($recentQuotes as $q): ?>
           <tr>
