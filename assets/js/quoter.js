@@ -90,7 +90,12 @@ function toggle(id, show) { const el = document.getElementById(id); if (el) el.s
    ============================================================ */
 
 function toggleCat(hdr) {
-  hdr.closest('.cat-block').classList.toggle('open');
+  const block = hdr.closest('.cat-block');
+  const body  = block.querySelector('.cat-body');
+  const willOpen = !body.classList.contains('open');
+  body.classList.toggle('open', willOpen);
+  body.style.display = willOpen ? 'block' : 'none';  // fallback directo
+  block.classList.toggle('open', willOpen);           // rota el chevron
 }
 
 /* ============================================================

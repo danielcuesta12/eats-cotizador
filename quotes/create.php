@@ -148,7 +148,7 @@ $eventTypes = array_filter(array_map('trim', explode(',', $rawTypes)));
 $pageTitle  = 'Nueva propuesta';
 $activePage = 'quote-new';
 
-$extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css">';
+$extraHead = '<link rel="stylesheet" href="' . APP_URL . '/assets/css/quoter.css?v=2">';
 include __DIR__ . '/../admin/layout-top.php';
 ?>
 
@@ -260,7 +260,7 @@ include __DIR__ . '/../admin/layout-top.php';
             <span class="cat-count">0 ítems</span>
             <span class="cat-chev">&#9662;</span>
           </div>
-          <div class="cat-body">
+          <div class="cat-body" style="display:none">
             <div class="cat-items"></div>
             <div class="cat-sep" style="display:none"></div>
             <div class="cat-pills">
