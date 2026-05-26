@@ -54,51 +54,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_status'])) {
 $pubLink = APP_URL . '/quotes/view.php?token=' . $quote['public_token'];
 $pdfLink = APP_URL . '/quotes/pdf.php?id=' . $id;
 
-// WhatsApp al CLIENTE — mensaje adaptado al estado con emojis
+// WhatsApp al CLIENTE — tono formal B2B por estado
 $clientPhone = preg_replace('/\D/', '', isset($quote['client_phone']) ? $quote['client_phone'] : '');
 $_clientName = $quote['client_name'];
 $_quoteNum   = $quote['quote_number'];
 $_eventDate  = $quote['event_date'] ? formatDate($quote['event_date']) : '';
 $_daysSent   = $quote['sent_at'] ? (int)((time() - strtotime($quote['sent_at'])) / 86400) : null;
 
-// Emojis como codepoints Unicode (compatibles con todos los sistemas)
-$_e_burger  = json_decode('"\uD83C\uDF54"'); // 🍔
-$_e_down    = json_decode('"\uD83D\uDC47"'); // 👇
-$_e_wave    = json_decode('"\uD83D\uDC4B"'); // 👋
-$_e_smile   = json_decode('"\uD83D\uDE0A"'); // 😊
-$_e_party   = json_decode('"\uD83C\uDF89"'); // 🎉
-$_e_cal     = json_decode('"\uD83D\uDDD3"'); // 🗓
-$_e_pray    = json_decode('"\uD83D\uDE4F"'); // 🙏
-$_e_spark   = json_decode('"\u2728"');        // ✨
+$_e_down = json_decode('"\uD83D\uDC47"'); // 👇
 
 switch ($quote['status']) {
     case 'borrador':
-        $waMsgTxt = "Hola " . $_clientName . "! " . $_e_burger . " " .
-            "Te comparto la cotizaci\xC3\xB3n " . $_quoteNum .
-            ($_eventDate ? " para tu evento del " . $_eventDate : "") .
-            ". Puedes verla completa aqu\xC3\xAD " . $_e_down . "\n" . $pubLink;
+        $waMsgTxt = "Estimado/a " . $_clientName
+            . ", le compartimos la propuesta de alimentaci\xC3\xB3n " . $_quoteNum
+            . " para revisi\xC3\xB3n. Puede acceder al detalle completo aqu\xC3\xAD "
+            . $_e_down . "\n" . $pubLink;
         break;
     case 'enviada':
         $_diasStr = $_daysSent !== null
-            ? " hace " . $_daysSent . " d\xC3\xADa" . ($_daysSent !== 1 ? "s" : "")
+            ? " enviada hace " . $_daysSent . " d\xC3\xADa" . ($_daysSent !== 1 ? "s" : "")
             : "";
-        $waMsgTxt = "Hola " . $_clientName . "! " . $_e_wave . " " .
-            "Solo quer\xC3\xADa hacer un seguimiento de la cotizaci\xC3\xB3n " . $_quoteNum .
-            " que te enviamos" . $_diasStr . ". " .
-            "\xC2\xBFTuviste oportunidad de revisarla? Quedo atento a cualquier consulta " . $_e_smile . "\n\n" . $pubLink;
+        $waMsgTxt = "Estimado/a " . $_clientName
+            . ", hacemos seguimiento a nuestra propuesta " . $_quoteNum . $_diasStr
+            . ". \xC2\xBFTuvieron oportunidad de revisarla? Quedamos a su disposici\xC3\xB3n."
+            . "\n\n" . $pubLink;
         break;
     case 'aceptada':
-        $waMsgTxt = "Hola " . $_clientName . "! " . $_e_party . " " .
-            "Con el evento" . ($_eventDate ? " del " . $_eventDate : "") .
-            " acerc\xC3\xA1ndose, quer\xC3\xADa coordinar los \xC3\xBAltimos detalles contigo. " .
-            "\xC2\xBFTienes disponibilidad para conversar esta semana? " . $_e_cal;
+        $waMsgTxt = "Estimado/a " . $_clientName
+            . ", con el inicio del servicio" . ($_eventDate ? " el " . $_eventDate : "")
+            . ", nos gustar\xC3\xADa coordinar los \xC3\xBAltimos detalles operativos. "
+            . "\xC2\xBFTienen disponibilidad esta semana?";
         break;
     case 'rechazada':
     default:
-        $waMsgTxt = "Hola " . $_clientName . "! " . $_e_pray . " " .
-            "Entendemos que por el momento no pudimos concretar. " .
-            "Si en alg\xC3\xBAn momento retoman la b\xC3\xBAsqueda, con gusto les preparamos una nueva propuesta. " .
-            "\xC2\xA1\xC3\x89xitos! " . $_e_spark;
+        $waMsgTxt = "Estimado/a " . $_clientName
+            . ", entendemos que por el momento no pudimos concretar. "
+            . "Quedamos a su disposici\xC3\xB3n para cuando requieran servicios de alimentaci\xC3\xB3n corporativa.";
         break;
 }
 $waMsg  = rawurlencode($waMsgTxt);
@@ -106,7 +97,7 @@ $waLink = $clientPhone
     ? "https://wa.me/" . $clientPhone . "?text=" . $waMsg
     : "https://wa.me/?text=" . $waMsg;
 
-$pageTitle  = 'Cotizacion ' . $quote['quote_number'];
+$pageTitle  = 'Propuesta ' . $quote['quote_number'];
 $activePage = 'quotes';
 $extraHead  = '
 <style>
@@ -257,7 +248,7 @@ include __DIR__ . '/../admin/layout-top.php';
 
 <!-- BREADCRUMB -->
 <div class="breadcrumb">
-  <a href="<?php echo APP_URL; ?>/quotes/list.php">Cotizaciones</a>
+  <a href="<?php echo APP_URL; ?>/quotes/list.php">Propuestas</a>
   <span class="breadcrumb-sep">›</span>
   <span class="breadcrumb-current"><?php echo clean($quote['quote_number']); ?></span>
 </div>
@@ -283,7 +274,7 @@ include __DIR__ . '/../admin/layout-top.php';
     <!-- TOTAL HERO (mobile first) -->
     <div class="total-hero">
       <div>
-        <div class="total-hero-label">TOTAL COTIZACION</div>
+        <div class="total-hero-label">TOTAL PROPUESTA</div>
         <div class="total-hero-amount"><?php echo formatMoney((float)$quote['total']); ?></div>
         <?php if ($quote['num_people'] > 0 && $quote['price_per_person'] > 0): ?>
         <div style="font-size:12px;opacity:.75;margin-top:2px">
@@ -303,7 +294,7 @@ include __DIR__ . '/../admin/layout-top.php';
     <!-- PRODUCTOS -->
     <div class="card">
       <div class="card-header">
-        <span class="card-title">Productos cotizados</span>
+        <span class="card-title">Productos incluidos</span>
         <span style="font-size:13px;color:var(--text-muted)"><?php echo count($items); ?> items</span>
       </div>
       <?php foreach ($items as $it):
@@ -401,7 +392,7 @@ include __DIR__ . '/../admin/layout-top.php';
     switch ($quote['status']) {
         case 'borrador':
             $segIcon  = '&#128228;';
-            $segTitle = 'Enviar cotizaci&oacute;n al cliente';
+            $segTitle = 'Enviar propuesta al cliente';
             $segSub   = 'A&uacute;n no se ha enviado &middot; Lista para enviar';
             break;
         case 'enviada':
@@ -411,10 +402,9 @@ include __DIR__ . '/../admin/layout-top.php';
             break;
         case 'aceptada':
             $segIcon  = '&#9989;';
-            $segTitle = 'Coordinar el evento';
-            $segSub   = ($daysToEvent !== null && $daysToEvent >= 0
-                ? 'Evento en ' . $daysToEvent . ' d&iacute;a' . ($daysToEvent !== 1 ? 's' : '')
-                : 'Evento confirmado') . ' &middot; Confirma detalles con el cliente';
+            $segTitle = 'Gestionar servicio';
+            $_acceptedFrom = $quote['accepted_at'] ? formatDate($quote['accepted_at']) : '&mdash;';
+            $segSub   = 'Servicio activo desde ' . $_acceptedFrom;
             break;
         case 'rechazada':
         default:
